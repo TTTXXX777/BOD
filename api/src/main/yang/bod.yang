@@ -1,0 +1,25 @@
+module bod {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bod";
+    prefix "bod";
+
+    import opendaylight-inventory {prefix inv;revision-date "2013-08-19";}
+
+    revision "2015-01-05" {
+        description "Initial revision of bod model";
+    }
+
+    rpc send-packet {
+    	input {
+    		leaf misslen {
+    			type string;
+    		}
+    	}
+    	output {
+    		leaf result {
+    			type string;
+    		}
+    	}
+    }
+}
+
