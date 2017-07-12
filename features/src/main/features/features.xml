@@ -17,7 +17,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.dlux/features-dlux/{{VERSION}}/xml/features</repository>
   <!-- tianxiang added -->
   <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin/${openflowplugin.version}/xml/features</repository>
-  <repository>mvn:org.opendaylight.controller.ted/ted-features/0.1.0-SNAPSHOT/xml/features</repository>
+  <repository>mvn:org.opendaylight.openflowjava/features-openflowjava/${openflowjava.version}/xml/features</repository>
+  <repository>mvn:org.opendaylight.controller.ted/ted-features/${ted-impl.version}/xml/features</repository>
   <!-- tianxiang ended -->
 
   <feature name='odl-bod-api' version='${project.version}' description='OpenDaylight :: bod :: api'>

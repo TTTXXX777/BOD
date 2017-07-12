@@ -9,9 +9,9 @@ module bod {
         description "Initial revision of bod model";
     }
 
-    rpc send-packet {
+    rpc send-command {
     	input {
-    		leaf misslen {
+    		leaf operation {
     			type string;
     		}
     	}

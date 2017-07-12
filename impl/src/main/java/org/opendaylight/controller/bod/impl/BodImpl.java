@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright © 2017 BNI, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -19,22 +19,17 @@ import org.opendaylight.controller.ted.impl.LinkPropertyService;
 
 import java.util.concurrent.Future;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bod.rev150105.BodService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bod.rev150105.SendPacketInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bod.rev150105.SendPacketOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bod.rev150105.SendPacketOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bod.rev150105.SendCommandInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bod.rev150105.SendCommandOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bod.rev150105.SendCommandOutputBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 
 //add for set-config
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.setconfig.rev170604.PacketSetConfigService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.setconfig.rev170604.PacketSetConfigInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.setconfig.rev170604.PacketSetConfigInputBuilder;
 
-
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflow.common.types.rev130731.SwitchConfigFlag;
 import org.opendaylight.controller.bod.impl.InstanceIdentifierUtils;
+import org.opendaylight.controller.bod.impl.AlgorithmsImpl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
@@ -50,15 +45,15 @@ public class BodImpl implements BodService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BodImpl.class);
 	
-	private final PacketSetConfigService packetSetConfigService;
 	private final LinkPropertyService linkPropertyService;
+	public TopoResource topoResource;
 
 	/**
-	 * @param packetSetConfigService
+	 * 
 	 * @param linkPropertyService
 	 */
-	public BodImpl(PacketSetConfigService packetSetConfigService, LinkPropertyService linkPropertyService) {
-		this.packetSetConfigService = packetSetConfigService;
+	public BodImpl(LinkPropertyService linkPropertyService) {
+		//this.packetSetConfigService = packetSetConfigService;
 		this.linkPropertyService = linkPropertyService;
 	}
 
@@ -76,26 +71,63 @@ public class BodImpl implements BodService {
  //    }
 
 	@Override
-	public Future<RpcResult<SendPacketOutput>> sendPacket(SendPacketInput input) {
-		SendPacketOutputBuilder helloBuilder = new SendPacketOutputBuilder();
-		    
-        java.lang.Integer sendlen = new Integer(777);
-        sendSetconfig(SwitchConfigFlag.FRAGNORMAL,sendlen);  //send packet!
-		String deviceId = linkPropertyService.getDeviceId1().toString();
-		helloBuilder.setResult("Send Packet OK."+ input.getMisslen()+deviceId); //return message
-		return RpcResultBuilder.success(helloBuilder.build()).buildFuture();
+	public Future<RpcResult<SendCommandOutput>> sendCommand(SendCommandInput input) {
+		SendCommandOutputBuilder sendCommandBuilder = new SendCommandOutputBuilder();
+		LinkProperty linkProperty = new LinkProperty();
+
+	
+		TopoResource topoResource = new TopoResource(linkProperty);
+		//getPhysicalTopoShow
+		if (topoResource.initTopoResource()){
+
+			if(input.getOperation().equals("PhysicalTopo")){
+				Set<String> nbPhyTopoShow = topoResource.getPhysicalTopoShow();
+				String nima = new String();
+				int i = 1;
+				for(String s : nbPhyTopoShow){
+					nima  += "<" + i++ +">" + s ;
+				}
+ 				sendCommandBuilder.setResult("PhysicalTopo: "+ nima); 
+			}
+			if(input.getOperation().equals("LogicalTopo")){
+				Set<String> nbLogTopoShow = topoResource.getLogicalTopoShow();
+				String nima2 = new String();
+				int j = 1;
+				for(String s : nbLogTopoShow) {
+					nima2 += "<" + j++ + ">" + s;
+				}
+				sendCommandBuilder.setResult("LogicalTopo: "+ nima2);
+			}
+ 		    	
+		}
+		if (input.getOperation().equals("BBUConv")) {
+			AlgorithmsImpl al = new AlgorithmsImpl(topoResource);
+			if (al.startBBUConv()) {
+				SetupManager sm = new SetupManager();
+				if (sm.setupPath(al.src, al.olddst, al.dst, al.connectNe)) {
+					Set<String> nbLogTopoShow = topoResource.getLogicalTopoShow();
+					String nima = new String();
+					int j = 1;
+					for(String s : nbLogTopoShow) {
+						nima += "<" + j++ + ">" + s;
+					}
+					sendCommandBuilder.setResult("The LogicalTopo after BBUConv: "+ nima);
+				}
+			}
+		}
+		return RpcResultBuilder.success(sendCommandBuilder.build()).buildFuture();
 	}
 
 	// ===================================================================================================
 	
-	private void sendSetconfig(SwitchConfigFlag flags, java.lang.Integer sendlen) {
+	/*private void sendSetconfig(SwitchConfigFlag flags, java.lang.Integer sendlen) {
         LOG.info("==========TIANXIANG sendSetconfig begin=====================");
 
         PacketSetConfigInputBuilder setConfigBuilder = new PacketSetConfigInputBuilder();
         // BundleContext ctx = getBundleContext();
         // ServiceReference linkPropertyServiceReference = ctx.getServiceReference(LinkPropertyService.class);
         //LinkProperty linkProperty = (LinkProperty)ctx.getService(linkPropertyServiceReference);
-        LinkProperty linkProperty = new LinkProperty();
+        LinkProperty linkProperty = new LinkProperty();  
         NodeConnectorRef nodeRef = linkProperty.getIngress();
         InstanceIdentifier<Node> egressNodePath = InstanceIdentifierUtils.getNodePath(nodeRef.getValue()); 
         //Construct input for RPC call to packet processing service
@@ -108,4 +140,5 @@ public class BodImpl implements BodService {
         LOG.info("==============TIANXIANG sendbulid=================={}"+setConfigBuilder);
         LOG.info("==============TIANXIANG sendSetconfig end====================");
 	}
+	*/
 }
