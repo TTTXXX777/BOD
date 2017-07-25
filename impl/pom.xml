@@ -41,6 +41,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </dependency>
 
     <dependency>
+     <groupId>org.opendaylight.controller.LPM</groupId>
+     <artifactId>LPM-impl</artifactId>
+     <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.opendaylight.controller.ted</groupId>
       <artifactId>ted-impl</artifactId>
       <version>0.1.0-SNAPSHOT</version>
@@ -65,4 +71,19 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Export-Package>org.opendaylight.controller.bod.impl</Export-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

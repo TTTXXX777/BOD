@@ -23,40 +23,44 @@ import org.slf4j.LoggerFactory;
 
 public class TopoResource {
 
-	public static LinkProperty linkProperty;
+	public static LinkPropertyService linkPropertyService;
 
     public static Set<Map<Short,List<Integer>>> physicalTopo = new HashSet<Map<Short,List<Integer>>>();; 
     public static Map<Short,Long> logicalTopo = new HashMap<Short,Long>();
-	
+
     // for viewing phyVertexSetView
     public static Map<Short,List<Integer>> rru_Resource;
-    public static Map<Short,Long> sw_Resource;
+    public static Map<Short,Long> ne_Resource;
+    public static Map<Short,List<Integer>> wss_Resource;
     public static Map<Short,List<Integer>> bbu_Resource;
 
 	public static Set<Short> phyBBUSet;
 	public static Set<Short> phyRRUSet;
-	public static Set<Short> phySWSet;
+	public static Set<Short> phyNESet;
+	public static Set<Short> phyWSSSet;
 	public static Set<String> nbPhyTopoShow;
 	public static Set<String> nbLogTopoShow;
 
 	private static final Logger LOG = LoggerFactory.getLogger(TopoResource.class);
-	public TopoResource(LinkProperty linkProperty) {
-		this.linkProperty = linkProperty;
+	public TopoResource(LinkPropertyService linkPropertyService) {
+		this.linkPropertyService = linkPropertyService;
 	}
 
 	public static boolean initTopoResource(){
 		LOG.info("==========Bod TopoResource Start initTopoResource()========");
 		
-		if (linkProperty != null) {
-			physicalTopo =  linkProperty.getPhysicalTopo();
-			logicalTopo =  linkProperty.getLogicalTopo();
-			sw_Resource =  linkProperty.getSWResource();
-			bbu_Resource = linkProperty.getBBUResource();
-			rru_Resource = linkProperty.getRRUResource();
+		if (linkPropertyService != null) {
+			physicalTopo =  linkPropertyService.getPhysicalTopo();
+			logicalTopo =  linkPropertyService.getLogicalTopo();
+			ne_Resource =  linkPropertyService.getNEResource();
+			wss_Resource = linkPropertyService.getWSSResource();
+			bbu_Resource = linkPropertyService.getBBUResource();
+			rru_Resource = linkPropertyService.getRRUResource();
 
 			phyBBUSet = new HashSet<Short>();
 			phyRRUSet = new HashSet<Short>();
-			phySWSet = new HashSet<Short>();
+			phyNESet = new HashSet<Short>();
+			phyWSSSet = new HashSet<Short>();
 			nbPhyTopoShow = new HashSet<String>();
 			nbLogTopoShow = new HashSet<String>();
 
@@ -66,8 +70,11 @@ public class TopoResource {
 			for(Short key : rru_Resource.keySet()){
 				phyRRUSet.add(key);
 			}
-			for(Short key : sw_Resource.keySet()){
-				phySWSet.add(key);
+			for(Short key : ne_Resource.keySet()){
+				phyNESet.add(key);
+			}
+			for(Short key : wss_Resource.keySet()){
+				phyWSSSet.add(key);
 			}	
 		}
 		LOG.info("===========Bod TopoResource initTopoResource() Ending==============");
@@ -116,4 +123,5 @@ public class TopoResource {
 		LOG.info("===========Bod getLogicalTopoResource() Ending==============");	      				
 		return nbLogTopoShow;
 	} 
+	
 }

@@ -14,6 +14,18 @@ module bod {
     		leaf operation {
     			type string;
     		}
+            leaf srcRRU1 {
+                type uint8;
+            }
+            leaf srcRRU2 {
+                type uint8;
+            }
+            leaf dstBBU1 {
+                type uint32;
+            }
+            leaf dstBBU2 {
+                type uint32;
+            }
     	}
     	output {
     		leaf result {

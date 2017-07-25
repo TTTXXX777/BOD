@@ -23,6 +23,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <reference id="LinkPropertyService" 
     interface="org.opendaylight.controller.ted.impl.LinkPropertyService"/>
+
+  <reference id="SetupManagerService" interface="org.opendaylight.controller.LPM.impl.SetupManagerService" />
             
   <bean id="provider"
     class="org.opendaylight.controller.bod.impl.BodProvider"
@@ -31,6 +33,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <argument ref="rpcRegistry" />
     <argument ref="notificationService" />
     <argument ref="LinkPropertyService" />
+    <argument ref="SetupManagerService" />
   </bean>
 
 </blueprint>
